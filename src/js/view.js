@@ -15,7 +15,7 @@ export class SimpleChatView extends EventTarget {
         this.elements = {};
 
         /** @type {boolean} Debug logging flag */
-        this.DEBUG = false;
+        this.DEBUG = true;
 
         /** @type {HTMLElement|null} Container element */
         this.container = null;
@@ -57,6 +57,7 @@ export class SimpleChatView extends EventTarget {
                     </div>
                     <div id="chat-functions-right">
                         <select id="ai-provider-dropdown">
+                            <option value="none">---</option>
                             <option value="eliza">Eliza</option>
                             <option value="openai">OpenAI</option>
                             <option value="claude">Claude</option>
@@ -137,16 +138,22 @@ export class SimpleChatView extends EventTarget {
         // Send button click
         this.elements.sendButton.addEventListener('click', () => {
             this.log("Send button clicked");
+            let provider = this.aiProviderDropdown.value;
             let userMessage = this.processUserMessage(this.elements.userInput.value);
 
-            if (userMessage) {
-                this.dispatchSendMessage(userMessage);
-                this.elements.userInput.value = ''; // Clear input
-                this.updateSendButtonState(); // Update button state after sending
-
+            if (provider === 'none') {
+                alert("Please select a valid AI provider before sending a message.");
+                return;
             } else {
-                alert("Please enter a valid message.");
+                if (userMessage) {
+                    this.dispatchSendMessage(userMessage, provider);
+                    this.elements.userInput.value = ''; // Clear input
+                    this.updateSendButtonState(); // Update button state after sending
 
+                } else {
+                    alert("Please enter a valid message.");
+
+                }
             }
         });
 
@@ -641,7 +648,7 @@ export class SimpleChatView extends EventTarget {
      */
     dispatchEditMessage(messageId, newText) {
         this.log('View dispatching edit message:', messageId, newText);
-        
+
         // Notify controller to update message with new text
         this.dispatchEvent(new CustomEvent('editMessage', {
             detail: { messageId: messageId, newText: newText }
@@ -670,22 +677,19 @@ export class SimpleChatView extends EventTarget {
     }
 
     /**
-     * Get the currently selected AI provider from the dropdown
-     * @returns {string} The selected AI provider value (eliza, openai, or claude)
-     */
-    getSelectedProvider() {
-        return this.elements.aiProviderDropdown.value;
-    }
-
-    /**
      * Dispatch provider change event to controller
      * @param {string} provider - The selected AI provider
      */
     dispatchProviderChange(provider) {
         // Notify controller that AI provider has changed
-        this.dispatchEvent(new CustomEvent('providerChange', {
-            detail: { provider: provider }
-        }));
+        if (provider === 'none') {
+            this.log("Select a valid provider");
+        } else {
+            this.dispatchEvent(new CustomEvent('providerChange', {
+                detail: { provider: provider }
+            }));
+        }
+
     }
 
 }
