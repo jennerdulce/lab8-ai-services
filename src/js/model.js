@@ -196,12 +196,15 @@ export class SimpleChatModel extends EventTarget {
         // Create simple JSON string of messages
         const jsonString = JSON.stringify(this.messages);
 
+        // Generate filename with current provider and timestamp
+        const filename = `chat-export-${providerName}.txt`;
+
         // Create and download text file
         const blob = new Blob([jsonString], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'chat-export.txt';
+        link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
