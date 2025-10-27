@@ -135,6 +135,14 @@ export class SimpleChatView extends EventTarget {
         // Send button click
         this.elements.sendButton.addEventListener('click', () => {
             this.log("Send button clicked");
+            
+            // Check if a valid provider is selected
+            const selectedProvider = this.getSelectedProvider();
+            if (!selectedProvider || selectedProvider === '') {
+                alert("Please select an AI provider before sending a message.");
+                return;
+            }
+            
             let userMessage = this.processUserMessage(this.elements.userInput.value);
 
             if (userMessage) {

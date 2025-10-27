@@ -38,6 +38,7 @@ export class SimpleChatModel extends EventTarget {
             this.currentProvider = provider;
             this.loadFromLocalStorage(provider);
             this.log(`Switched to provider: ${provider}`);
+
             this.dispatchProviderChanged(this.messages);
         }
     }

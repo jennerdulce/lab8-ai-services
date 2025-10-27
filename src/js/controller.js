@@ -64,7 +64,7 @@ export class SimpleChatController {
         this.model.addEventListener('providerChanged', (e) => {
             // Clear current view and display new provider's messages
             let messages = e.detail
-            
+
             this.view.clearChatMessages();
             this.view.displayImportedMessages(this.model.messages);
         });
@@ -120,7 +120,9 @@ export class SimpleChatController {
                 this.model.setProvider(provider);
 
             } else {
+                console.log('No provider selected');
                 // No provider selected, clear everything
+                // On render, view will show no messages
                 this.view.clearChatMessages();
             }
         });
