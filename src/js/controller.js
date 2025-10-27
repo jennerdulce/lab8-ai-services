@@ -11,7 +11,7 @@ export class SimpleChatController {
     constructor(model, view) {
         /** @type {SimpleChatModel} Reference to the model */
         this.model = model;
-        
+
         /** @type {SimpleChatView} Reference to the view */
         this.view = view;
     }
@@ -40,7 +40,7 @@ export class SimpleChatController {
 
         this.model.addEventListener('chatImported', (e) => {
             const importedMessages = e.detail.importedMessages;
-        
+
             this.view.displayImportedMessages(importedMessages);
         });
 
@@ -59,6 +59,14 @@ export class SimpleChatController {
             const message = e.detail.message;
             console.log('Controller received messageUpdated:', message);
             this.view.updateMessageInChat(message.id, message.message);
+        });
+
+        this.model.addEventListener('providerChanged', (e) => {
+            // Clear current view and display new provider's messages
+            let messages = e.detail
+            
+            this.view.clearChatMessages();
+            this.view.displayImportedMessages(this.model.messages);
         });
     }
 
@@ -100,6 +108,21 @@ export class SimpleChatController {
             const newText = e.detail.newText;
             console.log('Controller received edit message:', messageId, newText);
             this.model.updateMessage(messageId, newText);
+        });
+
+        // Provider Change
+        this.view.addEventListener('providerChange', (e) => {
+            const provider = e.detail.provider;
+            console.log(`Provider changed to: ${provider}`);
+
+            if (provider) {
+                // Switch model to new provider and load its data
+                this.model.setProvider(provider);
+
+            } else {
+                // No provider selected, clear everything
+                this.view.clearChatMessages();
+            }
         });
     }
 }

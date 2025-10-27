@@ -16,9 +16,6 @@ export class SimpleChatView extends EventTarget {
 
         /** @type {boolean} Debug logging flag */
         this.DEBUG = false;
-
-        /** @type {HTMLElement|null} Container element */
-        this.container = null;
     }
 
     /**
@@ -28,7 +25,7 @@ export class SimpleChatView extends EventTarget {
         this.cacheElements();
         this.updateSendButtonState();
         this.setupEventListeners();
-        this.loadChatHistoryFromStorage();
+        // Don't load chat history on startup - wait for provider selection
     }
 
     /**
@@ -688,6 +685,5 @@ export class SimpleChatView extends EventTarget {
             detail: { provider: provider }
         }));
     }
-
 }
 
