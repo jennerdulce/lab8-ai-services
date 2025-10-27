@@ -598,18 +598,18 @@ export class SimpleChatView extends EventTarget {
     /**
      * Get bot response based on selected AI provider
      * @param {string} message - User's message
-     * @returns {string} AI provider's response
+     * @returns {Promise<string>} AI provider's response
      */
-    getBotResponseByProvider(message) {
+    async getBotResponseByProvider(message) {
         const selectedProvider = this.getSelectedProvider();
         
         switch (selectedProvider) {
             case 'eliza':
                 return getElizaResponse(message);
             case 'claude':
-                return getClaudeResponse(message);
+                return await getClaudeResponse(message);
             case 'openai':
-                return getOpenAIResponse(message);
+                return await getOpenAIResponse(message);
             default:
                 return "Please select an AI provider to get a response.";
         }
@@ -629,8 +629,8 @@ export class SimpleChatView extends EventTarget {
         }));
 
         
-        setTimeout(() => {
-            let botResponse = this.getBotResponseByProvider(message);
+        setTimeout(async () => {
+            let botResponse = await this.getBotResponseByProvider(message);
 
             this.dispatchEvent(new CustomEvent('sendMessage', {
                 detail: {
