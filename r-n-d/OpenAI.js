@@ -1,4 +1,12 @@
 export async function getOpenAIResponse(userMessage) {
+  let DEBUG = true; // Set to false when you have a real API key
+  
+  // For development/testing without API key
+  if (DEBUG) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return `OpenAI GPT says: I received your message "${userMessage}". This is a mock response for testing.`;
+  }
+
   const API_KEY = process.env.OPENAI_API_KEY;
   const url = "https://api.openai.com/v1/chat/completions";
 

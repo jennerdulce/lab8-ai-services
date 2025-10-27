@@ -1,6 +1,6 @@
 // Simple API call using fetch with async/await
 export async function getClaudeResponse(userMessage) {
-    let DEBUG = false; // Set to false when you have a real API key
+    let DEBUG = true; // Set to false when you have a real API key
     
     // For development/testing without API key
     if (DEBUG) {
