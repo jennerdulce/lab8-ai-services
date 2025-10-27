@@ -194,9 +194,17 @@ export class SimpleChatModel extends EventTarget {
      */
     exportChat() {
         // Create simple JSON string of messages
+
+        if (!this.currentProvider) {
+            this.log("No provider set, cannot export chat");
+            alert("Please select a provider before exporting chat.");
+
+            return;
+        }
         const jsonString = JSON.stringify(this.messages);
 
         // Generate filename with current provider and timestamp
+        const providerName = this.currentProvider;
         const filename = `chat-export-${providerName}.txt`;
 
         // Create and download text file
