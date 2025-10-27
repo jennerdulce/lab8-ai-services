@@ -1,4 +1,6 @@
-import { getBotResponse } from "./eliza.js";
+import { getElizaResponse } from "../../r-n-d/Eliza.js";
+import { getClaudeResponse } from "../../r-n-d/Claude.js";
+import { getOpenAIResponse } from "../../r-n-d/OpenAI.js";
 
 /**
  * View component for chat application UI management
@@ -594,6 +596,26 @@ export class SimpleChatView extends EventTarget {
     }
 
     /**
+     * Get bot response based on selected AI provider
+     * @param {string} message - User's message
+     * @returns {string} AI provider's response
+     */
+    getBotResponseByProvider(message) {
+        const selectedProvider = this.getSelectedProvider();
+        
+        switch (selectedProvider) {
+            case 'eliza':
+                return getElizaResponse(message);
+            case 'claude':
+                return getClaudeResponse(message);
+            case 'openai':
+                return getOpenAIResponse(message);
+            default:
+                return "Please select an AI provider to get a response.";
+        }
+    }
+
+    /**
      * Dispatch send message event
      * @param {string} message - The message to send
      */
@@ -606,9 +628,9 @@ export class SimpleChatView extends EventTarget {
             }
         }));
 
-        // Immediate Bot Resposne
+        
         setTimeout(() => {
-            let botResponse = getBotResponse(message);
+            let botResponse = this.getBotResponseByProvider(message);
 
             this.dispatchEvent(new CustomEvent('sendMessage', {
                 detail: {
