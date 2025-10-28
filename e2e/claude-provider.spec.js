@@ -26,6 +26,26 @@ test.describe('Claude AI Provider Tests (Mock Mode)', () => {
     });
 
     test('should maintain separate chat history when switching providers', async ({ page }) => {
+        // Send message with Claude
+        await page.fill('#user-input', 'Hello from Claude test');
+        await page.click('#send-btn');
 
+        await expect(page.locator('#message-container .bot-output')).toHaveCount(1, { timeout: 5000 });
+
+        // Switch to Eliza
+        await page.selectOption('#ai-provider-dropdown', 'eliza');
+        await expect(page.locator('#message-container li')).toHaveCount(0);
+
+        // Send message with Eliza
+        await page.fill('#user-input', 'Hello from Eliza test');
+        await page.click('#send-btn');
+        await expect(page.locator('#message-container .bot-output')).toHaveCount(1);
+
+        // Switch back to Claude - should restore Claude's chat
+        await page.selectOption('#ai-provider-dropdown', 'claude');
+        await expect(page.locator('#message-container li')).toHaveCount(2);
+
+        const claudeResponse = await page.locator('#message-container .bot-output .message-text').textContent();
+        expect(claudeResponse).toContain('Hello from Claude test');
     });
 });
