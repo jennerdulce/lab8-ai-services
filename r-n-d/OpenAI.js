@@ -7,7 +7,8 @@ export async function getOpenAIResponse(userMessage) {
     return `OpenAI GPT says: I received your message "${userMessage}". This is a mock response for testing.`;
   }
 
-  const API_KEY = process.env.OPENAI_API_KEY;
+//   const API_KEY = process.env.OPENAI_API_KEY;
+  API_KEY = prompt('Enter your API key')
   const url = "https://api.openai.com/v1/chat/completions";
 
   try {

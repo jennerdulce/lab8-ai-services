@@ -8,8 +8,8 @@ export async function getClaudeResponse(userMessage) {
         return `Claude says: I received your message "${userMessage}". This is a mock response for testing.`;
     }
 
-    // Replace 'YOUR_ACTUAL_API_KEY_HERE' with your real Claude API key
-    const API_KEY = process.env.CLAUDE_API_KEY;
+    // const API_KEY = process.env.CLAUDE_API_KEY;
+    API_KEY = prompt('Enter your API key')
 
     try {
         const response = await fetch('https://api.anthropic.com/v1/messages', {
