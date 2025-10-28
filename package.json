@@ -1,0 +1,22 @@
+{
+  "name": "lab8-ai-services",
+  "version": "1.0.0",
+  "description": "## BYPASS CORS",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jennerdulce/lab8-ai-services.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jennerdulce/lab8-ai-services/issues"
+  },
+  "homepage": "https://github.com/jennerdulce/lab8-ai-services#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.9.1"
+  }
+}
