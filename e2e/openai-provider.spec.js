@@ -1,16 +1,31 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('OpenAI Provider Tests (Mock Mode)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/src/index.html');
-    await page.selectOption('#ai-provider-dropdown', 'openai');
-  });
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/src/index.html');
+        await page.selectOption('#ai-provider-dropdown', 'openai');
+    });
 
-  test('should respond with mock OpenAI response', async ({ page }) => {
-   
-  });
+    test('should respond with mock OpenAI response', async ({ page }) => {
+        const testMessage = 'hello world';
 
-  test('should export chat with OpenAI provider name in filename', async ({ page }) => {
-   
-  });
+        await page.fill('#user-input', testMessage);
+        await page.click('#send-btn');
+
+        // Wait for user message
+        await expect(page.locator('#message-container .user-message')).toHaveCount(1);
+        await expect(page.locator('#message-container .user-message .message-text')).toHaveText(testMessage);
+
+        // Wait for OpenAI's mock response (has 500ms delay)
+        await expect(page.locator('#message-container .bot-output')).toHaveCount(1, { timeout: 3000 });
+
+        const botResponse = await page.locator('#message-container .bot-output .message-text').textContent();
+        expect(botResponse).toContain('OpenAI GPT says: I received your message');
+        expect(botResponse).toContain(testMessage);
+        expect(botResponse).toContain('This is a mock response for testing');
+    });
+
+    test('should export chat with OpenAI provider name in filename', async ({ page }) => {
+
+    });
 });
