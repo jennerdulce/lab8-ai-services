@@ -23,4 +23,8 @@ test.describe('Eliza AI Provider Tests', () => {
         expect(botResponse?.length).toBeGreaterThan(0);
     });
 
+    test('should allow editing and deleting user messages', async ({ page }) => {
+      
+    });
+
 });
