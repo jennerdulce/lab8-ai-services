@@ -26,6 +26,23 @@ test.describe('OpenAI Provider Tests (Mock Mode)', () => {
     });
 
     test('should export chat with OpenAI provider name in filename', async ({ page }) => {
+        // Send a message first to have something to export
+        await page.fill('#user-input', 'Test message for export');
+        await page.click('#send-btn');
 
+        await expect(page.locator('#message-container .bot-output')).toHaveCount(1, { timeout: 3000 });
+
+        // Set up download listener
+        const downloadPromise = page.waitForEvent('download');
+
+        // Click export button
+        await page.click('#export-chat-btn');
+
+        // Wait for download
+        const download = await downloadPromise;
+
+        // Check filename contains provider name
+        expect(download.suggestedFilename()).toContain('openai');
+        expect(download.suggestedFilename()).toContain('chat-export');
     });
 });
