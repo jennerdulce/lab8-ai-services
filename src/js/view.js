@@ -1,6 +1,6 @@
-import { getElizaResponse } from "../../r-n-d/Eliza.js";
-import { getClaudeResponse } from "../../r-n-d/Claude.js";
-import { getOpenAIResponse } from "../../r-n-d/OpenAI.js";
+import { getElizaResponse } from "../r-n-d/Eliza.js";
+import { getClaudeResponse } from "../r-n-d/Claude.js";
+import { getOpenAIResponse } from "../r-n-d/OpenAI.js";
 
 /**
  * View component for chat application UI management
