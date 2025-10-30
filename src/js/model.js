@@ -29,19 +29,7 @@ export class SimpleChatModel extends EventTarget {
         if (this.DEBUG) console.log(msg);
     }
 
-    /**
-     * Set the current provider and load its chat history
-     * @param {string} provider - The provider to switch to (eliza, claude, openai)
-     */
-    setProvider(provider) {
-        if (provider) {
-            this.currentProvider = provider;
-            this.loadFromLocalStorage(provider);
-            this.log(`Switched to provider: ${provider}`);
-
-            this.dispatchProviderChanged(this.messages);
-        }
-    }
+    // Helper Functions ===============================================
 
     /**
      * Get the localStorage key for a specific provider
@@ -80,6 +68,41 @@ export class SimpleChatModel extends EventTarget {
             this.messages = []; // Reset to empty array on error
         }
     }
+
+    /**
+     * Save messages to localStorage for the current provider
+     */
+    saveToLocalStorage() {
+        if (!this.currentProvider) {
+            this.log("No provider set, skipping save");
+            return;
+        }
+
+        try {
+            const storageKey = this.getStorageKey(this.currentProvider);
+            localStorage.setItem(storageKey, JSON.stringify(this.messages));
+            this.log(`Chat history saved to ${storageKey}`);
+
+        } catch (e) {
+            console.error(`Error saving to storage: ${e}`)
+        }
+    }
+
+    /**
+     * Set the current provider and load its chat history
+     * @param {string} provider - The provider to switch to (eliza, claude, openai)
+     */
+    setProvider(provider) {
+        if (provider) {
+            this.currentProvider = provider;
+            this.loadFromLocalStorage(provider);
+            this.log(`Switched to provider: ${provider}`);
+
+            this.dispatchProviderChanged(this.messages);
+        }
+    }
+
+    // CRUD Operations ===============================================
 
     /**
      * Add a new message to the chat
@@ -261,67 +284,7 @@ export class SimpleChatModel extends EventTarget {
         }
     }
 
-    /**
-     * Save messages to localStorage for the current provider
-     */
-    saveToLocalStorage() {
-        if (!this.currentProvider) {
-            this.log("No provider set, skipping save");
-            return;
-        }
-
-        try {
-            const storageKey = this.getStorageKey(this.currentProvider);
-            localStorage.setItem(storageKey, JSON.stringify(this.messages));
-            this.log(`Chat history saved to ${storageKey}`);
-
-        } catch (e) {
-            console.error(`Error saving to storage: ${e}`)
-        }
-    }
-
-    /**
-     * Dispatch message added event
-     * @param {Object} message - The message object that was added
-     */
-    dispatchMessageAdded(message) {
-        this.dispatchEvent(new CustomEvent('messageAdded', {
-            detail: { message }
-        }))
-    }
-
-    /**
-     * Dispatch message updated event
-     * @param {Object} message - The message object that was updated
-     */
-    dispatchMessageUpdated(message) {
-        this.log('Model dispatching messageUpdated event:', message);
-
-        this.dispatchEvent(new CustomEvent('messageUpdated', {
-            detail: { message }
-        }))
-    }
-
-    /**
-     * Dispatch message deleted event
-     * @param {string} messageId - The ID of the deleted message
-     */
-    dispatchMessageDeleted(messageId) {
-        this.dispatchEvent(new CustomEvent('messageDeleted', {
-            detail: { messageId }
-        }))
-    }
-
-    /**
-     * Dispatch chat cleared event
-     */
-    dispatchChatCleared() {
-        this.dispatchEvent(new CustomEvent('chatCleared', {
-            detail: {
-                message: "Chat has been cleared successfully"
-            }
-        }));
-    }
+    // Event Dispatchers ===============================================
 
     /**
      * Dispatch chat exported event
@@ -347,6 +310,55 @@ export class SimpleChatModel extends EventTarget {
         }));
     }
 
+    /**
+     * Dispatch message added event
+     * @param {Object} message - The message object that was added
+     */
+    dispatchMessageAdded(message) {
+        this.dispatchEvent(new CustomEvent('messageAdded', {
+            detail: { message }
+        }))
+    }
+
+
+    /**
+     * Dispatch chat cleared event
+     */
+    dispatchChatCleared() {
+        this.dispatchEvent(new CustomEvent('chatCleared', {
+            detail: {
+                message: "Chat has been cleared successfully"
+            }
+        }));
+    }
+
+    /**
+     * Dispatch message deleted event
+     * @param {string} messageId - The ID of the deleted message
+     */
+    dispatchMessageDeleted(messageId) {
+        this.dispatchEvent(new CustomEvent('messageDeleted', {
+            detail: { messageId }
+        }))
+    }
+
+
+    /**
+     * Dispatch message updated event
+     * @param {Object} message - The message object that was updated
+     */
+    dispatchMessageUpdated(message) {
+        this.log('Model dispatching messageUpdated event:', message);
+
+        this.dispatchEvent(new CustomEvent('messageUpdated', {
+            detail: { message }
+        }))
+    }
+
+    /**
+     * Dispatch provider changed event
+     * @param {Array<Object>} messages - The messages for the new provider
+     */
     dispatchProviderChanged(messages) {
         this.dispatchEvent(new CustomEvent('providerChanged', {
             detail: { messages }

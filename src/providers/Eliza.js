@@ -1,23 +1,23 @@
 /**
-    * Generates bot responses using Eliza-style pattern matching
-    * Analyzes user input and returns contextual responses based on predefined patterns
-    * @param {string} message - The user's message to analyze
-    * @returns {string} Generated bot response based on pattern matching
-    */
-   
+ * Eliza-style Pattern Matching Module
+ * 
+ * This module provides simple pattern matching for chatbot responses.
+ * Import this module to use the getElizaResponse() function in your chat implementations.
+ * 
+ * @module Eliza
+ */
+
+/**
+ * Generates bot responses using Eliza-style pattern matching
+ * Analyzes user input and returns contextual responses based on predefined patterns
+ * @param {string} message - The user's message to analyze
+ * @returns {string} Generated bot response based on pattern matching
+ */
 export function getElizaResponse(message) {
     /**
-     * Eliza-style Pattern Matching Module
-     *
-     * This module provides simple pattern matching for chatbot responses.
-     * Import this module to use the getBotResponse() function in your chat implementations.
-     *
-     * Usage:
-     *   import { getBotResponse } from './eliza.js';
-     *   const response = getBotResponse("Hello there!");
+     * @type {Array<Object>} Array of pattern objects containing regex patterns and response arrays
+     * Each pattern object has a 'pattern' (RegExp) and 'responses' (Array<string>)
      */
-
-    // Eliza-style response patterns
     const patterns = [
         {
             pattern: /hello|hi|hey|howdy/i,
@@ -128,7 +128,9 @@ export function getElizaResponse(message) {
         }
     ];
 
-    // Default responses when no pattern matches
+    /**
+     * @type {Array<string>} Default responses when no pattern matches
+     */
     const defaultResponses = [
         "Tell me more about that.",
         "I see. Can you elaborate?",

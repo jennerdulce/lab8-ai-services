@@ -36,7 +36,7 @@ lab8-ai-services/
 │   │   ├── view.js             # UI component with provider selection
 │   │   ├── controller.js       # Business logic coordination
 │   │   └── eliza.js            # Local Eliza chatbot logic
-│   └── r-n-d/                  # Research & Development
+│   └── providers/                  # Research & Development
 │       ├── Claude.js           # Anthropic Claude API integration
 │       ├── OpenAI.js          # OpenAI GPT API integration
 │       └── Eliza.js           # Enhanced Eliza implementation
@@ -57,7 +57,7 @@ lab8-ai-services/
 - **`model.js`**: Manages chat data with provider-specific storage isolation
 - **`view.js`**: Handles UI, provider selection, and AI-specific response handling
 - **`controller.js`**: Coordinates provider switching and async operations
-- **`src/r-n-d/`**: AI service implementations with both mock and real API integrations
+- **`src/providers/`**: AI service implementations with both mock and real API integrations
 
 ## Features
 

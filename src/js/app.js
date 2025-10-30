@@ -2,7 +2,6 @@
  * Main application entry point
  * Initializes and coordinates all MVC components
  */
-
 import { SimpleChatModel } from "./model.js"
 import { SimpleChatView } from "./view.js"
 import { SimpleChatController } from "./controller.js"
@@ -28,5 +27,5 @@ function initializeApp() {
     });
 }
 
-// Bootstrap the application
+// Initialize the application
 initializeApp();

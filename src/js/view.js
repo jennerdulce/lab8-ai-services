@@ -1,6 +1,6 @@
-import { getElizaResponse } from "../r-n-d/Eliza.js";
-import { getClaudeResponse } from "../r-n-d/Claude.js";
-import { getOpenAIResponse } from "../r-n-d/OpenAI.js";
+import { getElizaResponse } from "../providers/Eliza.js";
+import { getClaudeResponse } from "../providers/Claude.js";
+import { getOpenAIResponse } from "../providers/OpenAI.js";
 
 /**
  * View component for chat application UI management
@@ -86,65 +86,20 @@ export class SimpleChatView extends EventTarget {
     }
 
     /**
-     * Load chat history from localStorage and display it
-     */
-    loadChatHistoryFromStorage() {
-        try {
-            const chatHistory = localStorage.getItem('chatHistory');
-
-            if (chatHistory) {
-                const messages = JSON.parse(chatHistory);
-                this.log(`Loading ${messages.length} messages from localStorage`);
-                this.displayImportedMessages(messages);
-
-            } else {
-                this.log('No chat history found in localStorage');
-
-            }
-
-        } catch (error) {
-            console.error('Error loading chat history from localStorage:', error);
-        }
-    }
-
-    /**
-     * Cache DOM elements for efficient access
-     */
-    cacheElements() {
-        this.elements = {
-            messageContainer: document.getElementById('message-container'),
-            userInput: document.getElementById('user-input'),
-            sendButton: document.getElementById('send-btn'),
-            clearChatButton: document.getElementById('clear-chat-btn'),
-            exportChatButton: document.getElementById('export-chat-btn'),
-            importChatButton: document.getElementById('import-chat-btn'),
-            aiProviderDropdown: document.getElementById('ai-provider-dropdown'),
-        };
-    }
-
-    /**
-     * Log debug messages when DEBUG is enabled
-     * @param {string} msg - Message to log
-     */
-    log(msg) {
-        if (this.DEBUG) console.log(msg);
-    }
-
-    /**
      * Set up all event listeners for user interactions
      */
     setupEventListeners() {
         // Send button click
         this.elements.sendButton.addEventListener('click', () => {
             this.log("Send button clicked");
-            
+
             // Check if a valid provider is selected
             const selectedProvider = this.getSelectedProvider();
             if (!selectedProvider || selectedProvider === '') {
                 alert("Please select an AI provider before sending a message.");
                 return;
             }
-            
+
             let userMessage = this.processUserMessage(this.elements.userInput.value);
 
             if (userMessage) {
@@ -241,6 +196,141 @@ export class SimpleChatView extends EventTarget {
         });
     }
 
+    /**
+     * Log debug messages when DEBUG is enabled
+     * @param {string} msg - Message to log
+     */
+    log(msg) {
+        if (this.DEBUG) console.log(msg);
+    }
+
+    /**
+     * Cache DOM elements for efficient access
+     */
+    cacheElements() {
+        this.elements = {
+            messageContainer: document.getElementById('message-container'),
+            userInput: document.getElementById('user-input'),
+            sendButton: document.getElementById('send-btn'),
+            clearChatButton: document.getElementById('clear-chat-btn'),
+            exportChatButton: document.getElementById('export-chat-btn'),
+            importChatButton: document.getElementById('import-chat-btn'),
+            aiProviderDropdown: document.getElementById('ai-provider-dropdown'),
+        };
+    }
+
+
+    /**
+     * Cancel editing mode and restore original message display
+     * @param {HTMLElement} messageElement - Message DOM element being edited
+     */
+    cancelEdit(messageElement) {
+        const textarea = messageElement.querySelector('.edit-textarea');
+        const editControls = messageElement.querySelector('.edit-controls');
+        const messageText = messageElement.querySelector('.message-text');
+
+        if (textarea) textarea.remove();
+        if (editControls) editControls.remove();
+        if (messageText) messageText.style.display = '';
+    }
+
+
+
+    /**
+     * Get the currently selected AI provider from the dropdown
+     * @returns {string} The selected AI provider value
+     */
+    getSelectedProvider() {
+        return this.elements.aiProviderDropdown.value;
+    }
+
+
+    /**
+     * Load chat history from localStorage and display it
+     */
+    loadChatHistoryFromStorage() {
+        try {
+            const chatHistory = localStorage.getItem('chatHistory');
+
+            if (chatHistory) {
+                const messages = JSON.parse(chatHistory);
+                this.log(`Loading ${messages.length} messages from localStorage`);
+                this.displayImportedMessages(messages);
+
+            } else {
+                this.log('No chat history found in localStorage');
+
+            }
+
+        } catch (error) {
+            console.error('Error loading chat history from localStorage:', error);
+        }
+    }
+
+    /**
+     * Open file dialog for importing chat data
+     */
+    openFileImportDialog() {
+        // Create a hidden file input element
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.txt,.json';
+        fileInput.style.display = 'none';
+
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+
+            if (file) {
+                this.readImportFile(file);
+            }
+        });
+
+        // Trigger file dialog
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        document.body.removeChild(fileInput);
+    }
+
+    /**
+     * Process and validate user input message
+     * @param {string} msg - Raw user input message
+     * @returns {string|false} Processed message or false if invalid
+     */
+    processUserMessage(msg) {
+        this.log("Processing user message...");
+        let processedUserMessage = msg.trim();
+
+        if (processedUserMessage !== "") {
+            return processedUserMessage;
+
+        } else {
+            return false;
+        }
+    }
+
+    /**
+    * Read and parse imported chat file
+    * @param {File} file - Selected file to read
+    */
+    readImportFile(file) {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const fileContent = e.target.result;
+                const importedData = JSON.parse(fileContent);
+                this.dispatchImportChat(importedData);
+
+            } catch (error) {
+                alert('Error reading file: Invalid JSON format');
+                console.error('Import error:', error);
+
+            }
+        };
+
+        reader.readAsText(file);
+    }
 
     /**
      * Start editing mode for a specific message
@@ -330,20 +420,6 @@ export class SimpleChatView extends EventTarget {
     }
 
     /**
-     * Cancel editing mode and restore original message display
-     * @param {HTMLElement} messageElement - Message DOM element being edited
-     */
-    cancelEdit(messageElement) {
-        const textarea = messageElement.querySelector('.edit-textarea');
-        const editControls = messageElement.querySelector('.edit-controls');
-        const messageText = messageElement.querySelector('.message-text');
-
-        if (textarea) textarea.remove();
-        if (editControls) editControls.remove();
-        if (messageText) messageText.style.display = '';
-    }
-
-    /**
      * Hide all visible message action buttons across the chat
      */
     hideAllMessageActions() {
@@ -367,53 +443,7 @@ export class SimpleChatView extends EventTarget {
         }
     }
 
-    /**
-     * Open file dialog for importing chat data
-     */
-    openFileImportDialog() {
-        // Create a hidden file input element
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.txt,.json';
-        fileInput.style.display = 'none';
-
-        // Handle file selection
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-
-            if (file) {
-                this.readImportFile(file);
-            }
-        });
-
-        // Trigger file dialog
-        document.body.appendChild(fileInput);
-        fileInput.click();
-        document.body.removeChild(fileInput);
-    }
-
-    /**
-     * Read and parse imported chat file
-     * @param {File} file - Selected file to read
-     */
-    readImportFile(file) {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            try {
-                const fileContent = e.target.result;
-                const importedData = JSON.parse(fileContent);
-                this.dispatchImportChat(importedData);
-
-            } catch (error) {
-                alert('Error reading file: Invalid JSON format');
-                console.error('Import error:', error);
-
-            }
-        };
-
-        reader.readAsText(file);
-    }
+    // Chat Methods ======================================
 
     /**
      * Append a message to the chat interface
@@ -514,23 +544,6 @@ export class SimpleChatView extends EventTarget {
     }
 
     /**
-     * Process and validate user input message
-     * @param {string} msg - Raw user input message
-     * @returns {string|false} Processed message or false if invalid
-     */
-    processUserMessage(msg) {
-        this.log("Processing user message...");
-        let processedUserMessage = msg.trim();
-
-        if (processedUserMessage !== "") {
-            return processedUserMessage;
-
-        } else {
-            return false;
-        }
-    }
-
-    /**
     * Remove message element from chat interface
     * @param {string} messageId - ID of message to remove
     */
@@ -602,7 +615,7 @@ export class SimpleChatView extends EventTarget {
      */
     async getBotResponseByProvider(message) {
         const selectedProvider = this.getSelectedProvider();
-        
+
         switch (selectedProvider) {
             case 'eliza':
                 return getElizaResponse(message);
@@ -615,31 +628,7 @@ export class SimpleChatView extends EventTarget {
         }
     }
 
-    /**
-     * Dispatch send message event
-     * @param {string} message - The message to send
-     */
-    dispatchSendMessage(message) {
-        // Dispatch sendMessage event
-        this.dispatchEvent(new CustomEvent('sendMessage', {
-            detail: {
-                message: message,
-                isUser: true
-            }
-        }));
-
-        
-        setTimeout(async () => {
-            let botResponse = await this.getBotResponseByProvider(message);
-
-            this.dispatchEvent(new CustomEvent('sendMessage', {
-                detail: {
-                    message: botResponse,
-                    isUser: false
-                }
-            }));
-        }, 2000);
-    }
+    // Event Dispatchers ==================================
 
     /**
      * Dispatch clear chat event to controller
@@ -669,7 +658,7 @@ export class SimpleChatView extends EventTarget {
      */
     dispatchEditMessage(messageId, newText) {
         this.log('View dispatching edit message:', messageId, newText);
-        
+
         // Notify controller to update message with new text
         this.dispatchEvent(new CustomEvent('editMessage', {
             detail: { messageId: messageId, newText: newText }
@@ -698,14 +687,6 @@ export class SimpleChatView extends EventTarget {
     }
 
     /**
-     * Get the currently selected AI provider from the dropdown
-     * @returns {string} The selected AI provider value
-     */
-    getSelectedProvider() {
-        return this.elements.aiProviderDropdown.value;
-    }
-
-    /**
      * Dispatch provider change event to controller
      * @param {string} provider - The selected AI provider
      */
@@ -714,6 +695,32 @@ export class SimpleChatView extends EventTarget {
         this.dispatchEvent(new CustomEvent('providerChange', {
             detail: { provider: provider }
         }));
+    }
+
+    /**
+     * Dispatch send message event
+     * @param {string} message - The message to send
+     */
+    dispatchSendMessage(message) {
+        // Dispatch sendMessage event
+        this.dispatchEvent(new CustomEvent('sendMessage', {
+            detail: {
+                message: message,
+                isUser: true
+            }
+        }));
+
+
+        setTimeout(async () => {
+            let botResponse = await this.getBotResponseByProvider(message);
+
+            this.dispatchEvent(new CustomEvent('sendMessage', {
+                detail: {
+                    message: botResponse,
+                    isUser: false
+                }
+            }));
+        }, 2000);
     }
 }
 
